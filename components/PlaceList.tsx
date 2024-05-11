@@ -2,35 +2,35 @@ import type { Database } from "@/lib/schema";
 import { type Session, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useEffect, useState } from "react";
 
-type Items = Database["public"]["Tables"]["items"]["Row"];
+type Places = Database["public"]["Tables"]["places"]["Row"];
 
-export default function ItemList({ session }: { session: Session }) {
+export default function PlaceList({ session }: { session: Session }) {
 	const supabase = useSupabaseClient<Database>();
-	const [items, setItems] = useState<Items[]>([]);
-	const [newItemText, setNewItemText] = useState("");
+	const [places, setPlaces] = useState<Places[]>([]);
+	const [newPlaceText, setNewPlaceText] = useState("");
 	const [errorText, setErrorText] = useState("");
 
 	const user = session.user;
 
 	useEffect(() => {
-		const fetchItems = async () => {
-			const { data: items, error } = await supabase
-				.from("items")
+		const fetchPlaces = async () => {
+			const { data: places, error } = await supabase
+				.from("places")
 				.select("*")
 				.order("id", { ascending: true });
 
 			if (error) console.log("error", error);
-			else setItems(items);
+			else setPlaces(places);
 		};
 
-		fetchItems();
+		fetchPlaces();
 	}, [supabase]);
 
-	const addItem = async (itemText: string) => {
-		const name = itemText.trim();
+	const addPlace = async (placeText: string) => {
+		const name = placeText.trim();
 		if (name.length) {
-			const { data: item, error } = await supabase
-				.from("items")
+			const { data: place, error } = await supabase
+				.from("places")
 				.insert({ name, user_id: user.id })
 				.select()
 				.single();
@@ -38,16 +38,16 @@ export default function ItemList({ session }: { session: Session }) {
 			if (error) {
 				setErrorText(error.message);
 			} else {
-				setItems([...items, item]);
-				setNewItemText("");
+				setPlaces([...places, place]);
+				setNewPlaceText("");
 			}
 		}
 	};
 
-	const deleteItem = async (id: number) => {
+	const deletePlace = async (id: number) => {
 		try {
-			await supabase.from("items").delete().eq("id", id).throwOnError();
-			setItems(items.filter((x) => x.id !== id));
+			await supabase.from("places").delete().eq("id", id).throwOnError();
+			setPlaces(places.filter((x) => x.id !== id));
 		} catch (error) {
 			console.log("error", error);
 		}
@@ -55,11 +55,11 @@ export default function ItemList({ session }: { session: Session }) {
 
 	return (
 		<div className="w-full">
-			<h2 className="mb-12">Items</h2>
+			<h2 className="mb-12">Places</h2>
 			<form
 				onSubmit={(e) => {
 					e.preventDefault();
-					addItem(newItemText);
+					addPlace(newPlaceText);
 				}}
 				className="flex gap-2 my-2"
 			>
@@ -67,10 +67,10 @@ export default function ItemList({ session }: { session: Session }) {
 					className="rounded w-full p-2"
 					type="text"
 					placeholder="make coffee"
-					value={newItemText}
+					value={newPlaceText}
 					onChange={(e) => {
 						setErrorText("");
-						setNewItemText(e.target.value);
+						setNewPlaceText(e.target.value);
 					}}
 				/>
 				<button className="btn-black" type="submit">
@@ -80,11 +80,11 @@ export default function ItemList({ session }: { session: Session }) {
 			{!!errorText && <Alert text={errorText} />}
 			<div className="bg-white shadow overflow-hidden rounded-md">
 				<ul>
-					{items.map((item) => (
-						<Item
-							key={item.id}
-							item={item}
-							onDelete={() => deleteItem(item.id)}
+					{places.map((place) => (
+						<Place
+							key={place.id}
+							place={place}
+							onDelete={() => deletePlace(place.id)}
 						/>
 					))}
 				</ul>
@@ -93,16 +93,19 @@ export default function ItemList({ session }: { session: Session }) {
 	);
 }
 
-const Item = ({ item, onDelete }: { item: Items; onDelete: () => void }) => {
+const Place = ({
+	place,
+	onDelete,
+}: { place: Places; onDelete: () => void }) => {
 	const supabase = useSupabaseClient<Database>();
-	const [isCompleted, setIsCompleted] = useState(item.is_complete);
+	const [isCompleted, setIsCompleted] = useState(place.is_complete);
 
 	const toggle = async () => {
 		try {
 			const { data } = await supabase
-				.from("items")
+				.from("places")
 				.update({ is_complete: !isCompleted })
-				.eq("id", item.id)
+				.eq("id", place.id)
 				.throwOnError()
 				.select()
 				.single();
@@ -115,10 +118,10 @@ const Item = ({ item, onDelete }: { item: Items; onDelete: () => void }) => {
 
 	return (
 		<li className="w-full block cursor-pointer hover:bg-gray-200 focus:outline-none focus:bg-gray-200 transition duration-150 ease-in-out">
-			<div className="flex items-center px-4 py-4 sm:px-6">
-				<div className="min-w-0 flex-1 flex items-center">
+			<div className="flex places-center px-4 py-4 sm:px-6">
+				<div className="min-w-0 flex-1 flex places-center">
 					<div className="text-sm leading-5 font-medium truncate">
-						{item.name}
+						{place.name}
 					</div>
 				</div>
 				<div>
