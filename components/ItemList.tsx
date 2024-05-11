@@ -2,52 +2,52 @@ import type { Database } from "@/lib/schema";
 import { type Session, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useEffect, useState } from "react";
 
-type Todos = Database["public"]["Tables"]["todos"]["Row"];
+type Items = Database["public"]["Tables"]["items"]["Row"];
 
-export default function TodoList({ session }: { session: Session }) {
+export default function ItemList({ session }: { session: Session }) {
 	const supabase = useSupabaseClient<Database>();
-	const [todos, setTodos] = useState<Todos[]>([]);
-	const [newTaskText, setNewTaskText] = useState("");
+	const [items, setItems] = useState<Items[]>([]);
+	const [newItemText, setNewItemText] = useState("");
 	const [errorText, setErrorText] = useState("");
 
 	const user = session.user;
 
 	useEffect(() => {
-		const fetchTodos = async () => {
-			const { data: todos, error } = await supabase
-				.from("todos")
+		const fetchItems = async () => {
+			const { data: items, error } = await supabase
+				.from("items")
 				.select("*")
 				.order("id", { ascending: true });
 
 			if (error) console.log("error", error);
-			else setTodos(todos);
+			else setItems(items);
 		};
 
-		fetchTodos();
+		fetchItems();
 	}, [supabase]);
 
-	const addTodo = async (taskText: string) => {
-		const task = taskText.trim();
-		if (task.length) {
-			const { data: todo, error } = await supabase
-				.from("todos")
-				.insert({ task, user_id: user.id })
+	const addItem = async (itemText: string) => {
+		const name = itemText.trim();
+		if (name.length) {
+			const { data: item, error } = await supabase
+				.from("items")
+				.insert({ name, user_id: user.id })
 				.select()
 				.single();
 
 			if (error) {
 				setErrorText(error.message);
 			} else {
-				setTodos([...todos, todo]);
-				setNewTaskText("");
+				setItems([...items, item]);
+				setNewItemText("");
 			}
 		}
 	};
 
-	const deleteTodo = async (id: number) => {
+	const deleteItem = async (id: number) => {
 		try {
-			await supabase.from("todos").delete().eq("id", id).throwOnError();
-			setTodos(todos.filter((x) => x.id !== id));
+			await supabase.from("items").delete().eq("id", id).throwOnError();
+			setItems(items.filter((x) => x.id !== id));
 		} catch (error) {
 			console.log("error", error);
 		}
@@ -59,7 +59,7 @@ export default function TodoList({ session }: { session: Session }) {
 			<form
 				onSubmit={(e) => {
 					e.preventDefault();
-					addTodo(newTaskText);
+					addItem(newItemText);
 				}}
 				className="flex gap-2 my-2"
 			>
@@ -67,10 +67,10 @@ export default function TodoList({ session }: { session: Session }) {
 					className="rounded w-full p-2"
 					type="text"
 					placeholder="make coffee"
-					value={newTaskText}
+					value={newItemText}
 					onChange={(e) => {
 						setErrorText("");
-						setNewTaskText(e.target.value);
+						setNewItemText(e.target.value);
 					}}
 				/>
 				<button className="btn-black" type="submit">
@@ -80,11 +80,11 @@ export default function TodoList({ session }: { session: Session }) {
 			{!!errorText && <Alert text={errorText} />}
 			<div className="bg-white shadow overflow-hidden rounded-md">
 				<ul>
-					{todos.map((todo) => (
-						<Todo
-							key={todo.id}
-							todo={todo}
-							onDelete={() => deleteTodo(todo.id)}
+					{items.map((item) => (
+						<Item
+							key={item.id}
+							item={item}
+							onDelete={() => deleteItem(item.id)}
 						/>
 					))}
 				</ul>
@@ -93,16 +93,16 @@ export default function TodoList({ session }: { session: Session }) {
 	);
 }
 
-const Todo = ({ todo, onDelete }: { todo: Todos; onDelete: () => void }) => {
+const Item = ({ item, onDelete }: { item: Items; onDelete: () => void }) => {
 	const supabase = useSupabaseClient<Database>();
-	const [isCompleted, setIsCompleted] = useState(todo.is_complete);
+	const [isCompleted, setIsCompleted] = useState(item.is_complete);
 
 	const toggle = async () => {
 		try {
 			const { data } = await supabase
-				.from("todos")
+				.from("items")
 				.update({ is_complete: !isCompleted })
-				.eq("id", todo.id)
+				.eq("id", item.id)
 				.throwOnError()
 				.select()
 				.single();
@@ -118,7 +118,7 @@ const Todo = ({ todo, onDelete }: { todo: Todos; onDelete: () => void }) => {
 			<div className="flex items-center px-4 py-4 sm:px-6">
 				<div className="min-w-0 flex-1 flex items-center">
 					<div className="text-sm leading-5 font-medium truncate">
-						{todo.task}
+						{item.name}
 					</div>
 				</div>
 				<div>

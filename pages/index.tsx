@@ -1,4 +1,4 @@
-import TodoList from "@/components/TodoList";
+import ItemList from "@/components/ItemList";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { Auth, ThemeSupa } from "@supabase/auth-ui-react";
 import Head from "next/head";
@@ -39,7 +39,7 @@ export default function Home() {
 						className="w-full h-full flex flex-col justify-center items-center p-4"
 						style={{ minWidth: 250, maxWidth: 600, margin: "auto" }}
 					>
-						<TodoList session={session} />
+						<ItemList session={session} />
 						<button
 							type="button"
 							className="btn-black w-full mt-12"
