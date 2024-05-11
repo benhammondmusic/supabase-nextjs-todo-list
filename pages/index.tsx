@@ -1,5 +1,4 @@
 import ItemList from "@/components/ItemList";
-import PlaceList from "@/components/PlaceList";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { Auth, ThemeSupa } from "@supabase/auth-ui-react";
 import Head from "next/head";
@@ -43,7 +42,6 @@ export default function Home() {
 						<h1>Where Is It?</h1>
 						<div className="w-full flex gap-10">
 							<ItemList session={session} />
-							<PlaceList session={session} />
 						</div>
 
 						<button

@@ -66,7 +66,7 @@ export default function ItemList({ session }: { session: Session }) {
 				<input
 					className="rounded w-full p-2"
 					type="text"
-					placeholder="make coffee"
+					placeholder="passport, wallet, etc."
 					value={newItemText}
 					onChange={(e) => {
 						setErrorText("");
@@ -94,25 +94,6 @@ export default function ItemList({ session }: { session: Session }) {
 }
 
 const Item = ({ item, onDelete }: { item: Items; onDelete: () => void }) => {
-	const supabase = useSupabaseClient<Database>();
-	const [isCompleted, setIsCompleted] = useState(item.is_complete);
-
-	const toggle = async () => {
-		try {
-			const { data } = await supabase
-				.from("items")
-				.update({ is_complete: !isCompleted })
-				.eq("id", item.id)
-				.throwOnError()
-				.select()
-				.single();
-
-			if (data) setIsCompleted(data.is_complete);
-		} catch (error) {
-			console.log("error", error);
-		}
-	};
-
 	return (
 		<li className="w-full block cursor-pointer hover:bg-gray-200 focus:outline-none focus:bg-gray-200 transition duration-150 ease-in-out">
 			<div className="flex items-center px-4 py-4 sm:px-6">
@@ -121,14 +102,7 @@ const Item = ({ item, onDelete }: { item: Items; onDelete: () => void }) => {
 						{item.name}
 					</div>
 				</div>
-				<div>
-					<input
-						className="cursor-pointer"
-						onChange={(e) => toggle()}
-						type="checkbox"
-						checked={!!isCompleted}
-					/>
-				</div>
+
 				<button
 					type="button"
 					onClick={(e) => {
