@@ -1,13 +1,21 @@
 import type { Database } from "@/lib/schema";
 
-export type Items = Database["public"]["Tables"]["items"]["Row"];
+export type ItemData = Database["public"]["Tables"]["items"]["Row"];
 
 interface ItemProps {
-	item: Items;
+	items: ItemData[];
+	thisItemId: number;
 	onDelete: () => void;
 	onAddParent: () => void;
 }
-export const Item = ({ item, onDelete, onAddParent }: ItemProps) => {
+export const ItemBlock = ({
+	items,
+	thisItemId,
+	onDelete,
+	onAddParent,
+}: ItemProps) => {
+	const item = items.find((item: ItemData) => item.id === thisItemId);
+	if (!item) return null;
 	return (
 		<li className="w-full block cursor-pointer hover:bg-gray-200 focus:outline-none focus:bg-gray-200 transition duration-150 ease-in-out">
 			<div className="flex items-center px-4 py-4 sm:px-6">

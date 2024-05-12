@@ -1,11 +1,11 @@
 import type { Database } from "@/lib/schema";
 import { type Session, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useEffect, useState } from "react";
-import { Item, type Items } from "./Item";
+import { ItemBlock, type ItemData } from "./ItemBlock";
 
 export default function ItemList({ session }: { session: Session }) {
 	const supabase = useSupabaseClient<Database>();
-	const [items, setItems] = useState<Items[]>([]);
+	const [items, setItems] = useState<ItemData[]>([]);
 	const [newItemText, setNewItemText] = useState("");
 	const [errorText, setErrorText] = useState("");
 
@@ -86,6 +86,13 @@ export default function ItemList({ session }: { session: Session }) {
 					throw updateError;
 				}
 
+				// Optimistically update the new item in the state array
+				setItems((prevItems) => {
+					return prevItems.map((item) => {
+						return item.id === itemId ? updatedItem : item;
+					});
+				});
+
 				console.log(`Parent item added successfully to item with id ${itemId}`);
 				// Optionally, you can return the updated item if needed
 				return updatedItem;
@@ -125,9 +132,10 @@ export default function ItemList({ session }: { session: Session }) {
 			<div className="bg-white shadow overflow-hidden rounded-md">
 				<ul>
 					{items.map((item) => (
-						<Item
+						<ItemBlock
 							key={item.id}
-							item={item}
+							thisItemId={item.id}
+							items={items}
 							onDelete={() => deleteItem(item.id)}
 							onAddParent={() => addParentToItem(item.id, item.id)}
 						/>
