@@ -1,11 +1,14 @@
 import type { Session } from "@supabase/auth-helpers-react";
 import { useState } from "react";
-import { ItemBlock } from "./ItemBlock";
+import { ItemBlock, type ItemData } from "./ItemBlock";
 import { useCrudStuff } from "@/lib/useCrudStuff";
 
 export default function ItemList({ session }: { session: Session }) {
 	const [newItemText, setNewItemText] = useState("");
 	const [errorText, setErrorText] = useState("");
+
+	const [hoveredDroppableItem, setHoveredDroppableItem] =
+		useState<ItemData | null>(null);
 
 	const { items, deleteItem, addItem, addParentToItem } = useCrudStuff(
 		session,
@@ -47,6 +50,8 @@ export default function ItemList({ session }: { session: Session }) {
 							items={items}
 							onDelete={() => deleteItem(item.id)}
 							onAddParent={() => addParentToItem(item.id, item.id)}
+							hoveredDroppableItem={hoveredDroppableItem}
+							setHoveredDroppableItem={setHoveredDroppableItem}
 						/>
 					))}
 				</ul>
