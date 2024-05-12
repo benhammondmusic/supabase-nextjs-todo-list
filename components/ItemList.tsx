@@ -1,8 +1,7 @@
 import type { Database } from "@/lib/schema";
 import { type Session, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useEffect, useState } from "react";
-
-type Items = Database["public"]["Tables"]["items"]["Row"];
+import { Item, type Items } from "./Item";
 
 export default function ItemList({ session }: { session: Session }) {
 	const supabase = useSupabaseClient<Database>();
@@ -31,7 +30,12 @@ export default function ItemList({ session }: { session: Session }) {
 		if (name.length) {
 			const { data: item, error } = await supabase
 				.from("items")
-				.insert({ name, user_id: user.id })
+				.insert({
+					name,
+					child_items: null,
+					parent_item: null,
+					user_id: user.id,
+				})
 				.select()
 				.single();
 
@@ -48,6 +52,46 @@ export default function ItemList({ session }: { session: Session }) {
 		try {
 			await supabase.from("items").delete().eq("id", id).throwOnError();
 			setItems(items.filter((x) => x.id !== id));
+		} catch (error) {
+			console.log("error", error);
+		}
+	};
+	const addParentToItem = async (itemId: number, parentItemId: number) => {
+		try {
+			// Fetch the existing item
+			const { data: existingItem, error } = await supabase
+				.from("items")
+				.select("*")
+				.eq("id", itemId)
+				.single();
+
+			if (error) {
+				throw error;
+			}
+
+			if (existingItem) {
+				// Merge the updated parent_item with existing item's other properties
+				const updatedItem = {
+					...existingItem,
+					parent_item: parentItemId,
+				};
+
+				// Update the item with the merged object
+				const { error: updateError } = await supabase
+					.from("items")
+					.update(updatedItem)
+					.eq("id", itemId);
+
+				if (updateError) {
+					throw updateError;
+				}
+
+				console.log(`Parent item added successfully to item with id ${itemId}`);
+				// Optionally, you can return the updated item if needed
+				return updatedItem;
+			}
+
+			console.log(`Item with id ${itemId} not found`);
 		} catch (error) {
 			console.log("error", error);
 		}
@@ -85,6 +129,7 @@ export default function ItemList({ session }: { session: Session }) {
 							key={item.id}
 							item={item}
 							onDelete={() => deleteItem(item.id)}
+							onAddParent={() => addParentToItem(item.id, item.id)}
 						/>
 					))}
 				</ul>
@@ -92,32 +137,6 @@ export default function ItemList({ session }: { session: Session }) {
 		</div>
 	);
 }
-
-const Item = ({ item, onDelete }: { item: Items; onDelete: () => void }) => {
-	return (
-		<li className="w-full block cursor-pointer hover:bg-gray-200 focus:outline-none focus:bg-gray-200 transition duration-150 ease-in-out">
-			<div className="flex items-center px-4 py-4 sm:px-6">
-				<div className="min-w-0 flex-1 flex items-center">
-					<div className="text-sm leading-5 font-medium truncate">
-						{item.name}
-					</div>
-				</div>
-
-				<button
-					type="button"
-					onClick={(e) => {
-						e.preventDefault();
-						e.stopPropagation();
-						onDelete();
-					}}
-					className="w-4 h-8 ml-2 border-2 hover:border-black hover:bg-red-500 hover:cursor-pointer rounded"
-				>
-					X
-				</button>
-			</div>
-		</li>
-	);
-};
 
 const Alert = ({ text }: { text: string }) => (
 	<div className="rounded-md bg-red-100 p-4 my-3">

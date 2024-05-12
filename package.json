@@ -3,7 +3,8 @@
   "version": "2.0.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"npm run dev:css\" \"next dev\"",
+    "dev": "concurrently \"npm run dev:css\" \"next dev\" \"npm run open-browser\"",
+    "open-browser": "open http://localhost:3000",
     "dev:css": "tailwindcss -w -i ./styles/tailwind.css -o styles/app.css",
     "build": "next build",
     "build:css": "tailwindcss -m -i ./styles/tailwind.css -o styles/app.css",
