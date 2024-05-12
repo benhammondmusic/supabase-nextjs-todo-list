@@ -40,6 +40,7 @@ export default function Home() {
 						style={{ minWidth: 250, maxWidth: 600, margin: "auto" }}
 					>
 						<h1>Where Is It?</h1>
+
 						<div className="w-full flex gap-10">
 							<ItemList session={session} />
 						</div>
