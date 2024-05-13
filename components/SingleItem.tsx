@@ -1,28 +1,25 @@
 import type { Database } from "@/lib/schema";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
-import { useEffect } from "react";
+import type { Dispatch, SetStateAction } from "react";
 
 export type ItemData = Database["public"]["Tables"]["items"]["Row"];
 
-interface ItemProps {
+interface SingleItemProps {
 	items: ItemData[];
 	thisItemId: number;
 	onDelete: () => void;
 	hoveredDroppableItem: ItemData | null;
-	setHoveredDroppableItem: (item: ItemData | null) => void;
+	setHoveredDroppableItem: Dispatch<SetStateAction<ItemData | null>>;
 	activeDraggableItem: ItemData | null;
 }
-export const ItemBlock = ({
+export const SingleItem = ({
 	items,
 	thisItemId,
 	onDelete,
 	hoveredDroppableItem,
 	setHoveredDroppableItem,
 	activeDraggableItem,
-}: ItemProps) => {
-	useEffect(() => {
-		console.log(activeDraggableItem);
-	}, [activeDraggableItem]);
+}: SingleItemProps) => {
 	// make this item draggable
 	const { attributes, listeners, setNodeRef, transform, isDragging } =
 		useDraggable({
@@ -43,6 +40,9 @@ export const ItemBlock = ({
 	const thisItem = items.find((item: ItemData) => item.id === thisItemId);
 	if (!thisItem) return null;
 	const parentItem = items.find((x: ItemData) => x.id === thisItem.parent_item);
+	const childItems = items.filter(
+		(x: ItemData) => x.parent_item === thisItem.id,
+	);
 
 	if (isOver) {
 		setHoveredDroppableItem(thisItem);
@@ -62,13 +62,14 @@ export const ItemBlock = ({
 				<div>
 					<div className="min-w-0 flex-1 flex items-center">
 						<div className="text-sm leading-5 font-medium truncate">
-							<p className="font-thin italic">Parent: {parentItem?.name}</p>
+							<p className="font-thin italic">Is In: {parentItem?.name}</p>
 							<p className="text-2xl font-thin italic">
 								<b>{thisItem.name}</b>
 							</p>
 							<p className="font-thin italic">
-								Children: {thisItem.child_items?.map((child) => child)}
+								Contains: {childItems.map((x) => x.name).join(", ")}
 							</p>
+
 							<button
 								type="button"
 								onClick={(e) => {
@@ -81,16 +82,6 @@ export const ItemBlock = ({
 								Delete
 							</button>
 						</div>
-
-						{activeDraggableItem?.name !== hoveredDroppableItem?.name &&
-							isDragging && (
-								<b>
-									Moving ≪{thisItem.name}≫ into{" "}
-									{hoveredDroppableItem?.name
-										? `≪${hoveredDroppableItem?.name}≫`
-										: "?"}
-								</b>
-							)}
 					</div>
 				</div>
 				<button

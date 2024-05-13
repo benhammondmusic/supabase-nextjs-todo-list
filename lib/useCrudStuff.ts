@@ -1,4 +1,4 @@
-import type { ItemData } from "@/components/ItemBlock";
+import type { ItemData } from "@/components/SingleItem";
 import { type Session, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useState, useEffect } from "react";
 import type { Database } from "./schema";
@@ -33,7 +33,6 @@ export const useCrudStuff = (session: Session, setErrorText: (text: string) => v
 				.from("items")
 				.insert({
 					name,
-					child_items: null,
 					parent_item: null,
 					user_id: user.id,
 				})
@@ -103,8 +102,6 @@ export const useCrudStuff = (session: Session, setErrorText: (text: string) => v
 		} catch (error) {
 			console.log("error", error);
 		}
-
-
 };
 
 

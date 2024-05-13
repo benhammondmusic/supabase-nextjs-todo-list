@@ -1,6 +1,6 @@
 import type { Session } from "@supabase/auth-helpers-react";
 import { useState } from "react";
-import { ItemBlock, type ItemData } from "./ItemBlock";
+import { SingleItem, type ItemData } from "./SingleItem";
 import { useCrudStuff } from "@/lib/useCrudStuff";
 import { DndContext } from "@dnd-kit/core";
 
@@ -66,7 +66,7 @@ export default function ItemList({ session }: { session: Session }) {
 				<div className="bg-white shadow overflow-hidden rounded-md p-10">
 					<ul className="pr-10">
 						{items.map((item) => (
-							<ItemBlock
+							<SingleItem
 								key={item.id}
 								thisItemId={item.id}
 								items={items}

@@ -14,7 +14,6 @@ export interface Database {
 					id: number;
 					inserted_at: string;
 					name: string | null;
-					child_items: number[] | null;
 					parent_item: number | null;
 					user_id: string;
 				};
@@ -22,7 +21,6 @@ export interface Database {
 					id?: number;
 					inserted_at?: string;
 					name?: string | null;
-					child_items: number[] | null;
 					parent_item: number | null;
 					user_id: string;
 				};
@@ -30,7 +28,6 @@ export interface Database {
 					id?: number;
 					inserted_at?: string;
 					name?: string | null;
-					child_items: number[] | null;
 					parent_item: number | null;
 					user_id?: string;
 				};

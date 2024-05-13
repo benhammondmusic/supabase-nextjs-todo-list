@@ -35,10 +35,7 @@ export default function Home() {
 						</div>
 					</div>
 				) : (
-					<div
-						className="w-full h-full flex flex-col justify-center items-center p-4"
-						style={{ minWidth: 250, maxWidth: 600, margin: "auto" }}
-					>
+					<div className="w-full h-full flex flex-col justify-center items-center p-4">
 						<h1>Where Is It?</h1>
 
 						<div className="w-full flex gap-10">
